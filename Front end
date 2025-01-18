@@ -1,0 +1,202 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Camera, ExternalLink } from 'lucide-react';
+
+const NFTApp = () => {
+  const [connected, setConnected] = useState(false);
+  const [activeTab, setActiveTab] = useState('mint');
+  const [file, setFile] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [minting, setMinting] = useState(false);
+  const [status, setStatus] = useState('');
+  
+  // Sample NFT gallery data
+  const [nfts] = useState([
+    { id: 1, title: 'Pi Art #1', price: '1.5 Pi', image: '/api/placeholder/300/300' },
+    { id: 2, title: 'Pi Art #2', price: '2.0 Pi', image: '/api/placeholder/300/300' },
+    { id: 3, title: 'Pi Art #3', price: '1.8 Pi', image: '/api/placeholder/300/300' }
+  ]);
+
+  const connectWallet = async () => {
+    try {
+      setStatus('Connecting to Pi Wallet...');
+      // Simulate wallet connection
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setConnected(true);
+      setStatus('Wallet connected successfully!');
+    } catch (error) {
+      setStatus('Error connecting wallet: ' + error.message);
+    }
+  };
+
+  const handleMint = async () => {
+    if (!file || !title || !description) {
+      setStatus('Please fill in all fields');
+      return;
+    }
+
+    setMinting(true);
+    setStatus('Preparing your NFT...');
+
+    try {
+      // Simulate minting process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setStatus('NFT Minted successfully!');
+      setFile(null);
+      setTitle('');
+      setDescription('');
+    } catch (error) {
+      setStatus('Error minting NFT: ' + error.message);
+    } finally {
+      setMinting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Pi Network NFTs</h1>
+          <button
+            onClick={connectWallet}
+            className={`flex items-center gap-2 px-4 py-2 rounded ${
+              connected ? 'bg-green-500' : 'bg-blue-600'
+            } text-white`}
+          >
+            {connected ? 'Connected' : 'Connect Wallet'}
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setActiveTab('mint')}
+            className={`px-4 py-2 rounded ${
+              activeTab === 'mint' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Mint NFT
+          </button>
+          <button
+            onClick={() => setActiveTab('gallery')}
+            className={`px-4 py-2 rounded ${
+              activeTab === 'gallery' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Gallery
+          </button>
+        </div>
+
+        {/* Main Content */}
+        {activeTab === 'mint' ? (
+          <Card className="w-full max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle>Create New NFT</CardTitle>
+              <CardDescription>Mint your unique NFT on Pi Network</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* File Upload */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                {file ? (
+                  <div className="space-y-2">
+                    <p className="text-blue-500">{file.name}</p>
+                    <button
+                      onClick={() => setFile(null)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer space-y-2">
+                    <Camera className="w-12 h-12 mx-auto text-gray-400" />
+                    <p className="text-gray-500">Click to upload image</p>
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      accept="image/*"
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter NFT title"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2 border rounded"
+                  rows="3"
+                  placeholder="Describe your NFT"
+                />
+              </div>
+
+              {/* Mint Button */}
+              <button
+                onClick={handleMint}
+                disabled={!connected || minting}
+                className={`w-full p-2 rounded ${
+                  !connected || minting
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                {minting ? 'Minting...' : 'Mint NFT'}
+              </button>
+
+              {/* Status Message */}
+              {status && (
+                <Alert>
+                  <AlertDescription>
+                    {status}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {nfts.map((nft) => (
+              <Card key={nft.id}>
+                <img
+                  src={nft.image}
+                  alt={nft.title}
+                  className="w-full h-48 object-cover"
+                />
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-semibold mb-2">{nft.title}</h3>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-600 font-medium">{nft.price}</span>
+                    <button className="flex items-center gap-1 text-sm text-gray-500">
+                      <ExternalLink className="w-4 h-4" />
+                      View Details
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NFTApp;
